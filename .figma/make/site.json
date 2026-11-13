@@ -1,0 +1,10 @@
+{
+  "description": "An interactive glowing button pulses continuously and brightens on hover, adding an eye-catching, responsive call to action to any page.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
