@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import buildSmartLogo from "./assets/buildsmart-logo.png";
 import buildSmartMark from "./assets/buildsmart-mark.png";
+import ProductPages, { type PageName } from "./ProductPages";
 
 type IconName =
   | "home"
@@ -126,6 +127,13 @@ const qualityRates = {
 };
 
 export default function App() {
+  const getPage = (): PageName => {
+    const hash = window.location.hash.replace("#/", "");
+    return ["auth", "dashboard", "wizard", "results"].includes(hash)
+      ? (hash as PageName)
+      : "landing";
+  };
+  const [page, setPage] = useState<PageName>(getPage);
   const [menuOpen, setMenuOpen] = useState(false);
   const [area, setArea] = useState(1800);
   const [quality, setQuality] = useState<keyof typeof qualityRates>("Standard");
@@ -151,10 +159,26 @@ export default function App() {
     return () => observer.disconnect();
   }, []);
 
+  useEffect(() => {
+    const handleRoute = () => setPage(getPage());
+    window.addEventListener("hashchange", handleRoute);
+    return () => window.removeEventListener("hashchange", handleRoute);
+  }, []);
+
+  const navigate = (nextPage: PageName) => {
+    window.location.hash = nextPage === "landing" ? "" : `/${nextPage}`;
+    setPage(nextPage);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const scrollToPlanner = () => {
     document.getElementById("planner")?.scrollIntoView({ behavior: "smooth" });
     setMenuOpen(false);
   };
+
+  if (page !== "landing") {
+    return <ProductPages page={page} navigate={navigate} />;
+  }
 
   return (
     <div className="landing">
@@ -176,7 +200,9 @@ export default function App() {
           <a href="#about">About</a>
         </nav>
         <div className="header-actions">
-          <button className="login-button">Log in</button>
+          <button className="login-button" onClick={() => navigate("auth")}>
+            Log in
+          </button>
           <button className="header-cta" onClick={scrollToPlanner}>
             Start an estimate <Icon name="arrow" size={15} />
           </button>
@@ -498,7 +524,13 @@ export default function App() {
                 <option>Hinjewadi</option>
               </select>
             </label>
-            <button className="modal-submit" onClick={() => setFormOpen(false)}>
+            <button
+              className="modal-submit"
+              onClick={() => {
+                setFormOpen(false);
+                navigate("wizard");
+              }}
+            >
               Continue to project details <Icon name="arrow" size={17} />
             </button>
           </section>
